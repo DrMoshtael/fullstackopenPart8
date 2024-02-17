@@ -121,6 +121,10 @@ const typeDefs = `
         published: Int
         genres: [String]
     ): Book
+    editAuthor(
+        name: String
+        setBornTo: Int
+    ): Author
   }
 `
 
@@ -148,6 +152,13 @@ const resolvers = {
             if (!authors.find(a => a.name === args.author)) 
                 authors = authors.concat({name: args.author, id: uuid()})
             return book
+        },
+        editAuthor: (root, args) => {
+            const auth = authors.find(a => a.name === args.name)
+            if (!auth) return null
+            const updAuth = {...auth, born: args.setBornTo}
+            authors[authors.indexOf(auth)] = updAuth
+            return updAuth
         }
     }
 }
