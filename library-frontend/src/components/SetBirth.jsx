@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries";
 
-const SetBirth = () => {
+const SetBirth = ({ authors }) => {
   const [name, setName] = useState("");
   const [born, setBorn] = useState("");
 
@@ -12,9 +12,13 @@ const SetBirth = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    editYear({ variables: { 
-        name: name, 
-        year: Number(born) } });
+    console.log(name, born)
+    editYear({
+      variables: {
+        name: name,
+        year: Number(born),
+      },
+    });
     setName("");
     setBorn("");
   };
@@ -23,14 +27,10 @@ const SetBirth = () => {
     <div>
       <h3>Set birthyear</h3>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">name</label>
-          <input
-            id="name"
-            value={name}
-            onChange={({ target }) => setName(target.value)}
-          />
-        </div>
+        <select value={name} onChange={e => setName(e.target.value)}>
+            {authors.map(a => 
+                <option key={a.name} value={a.name}>{a.name}</option>)}
+        </select>
         <div>
           <label htmlFor="born">born</label>
           <input
