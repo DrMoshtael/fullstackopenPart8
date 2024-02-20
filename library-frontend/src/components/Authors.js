@@ -1,5 +1,6 @@
 import { ALL_AUTHORS } from "../queries"
 import { useQuery } from "@apollo/client"
+import SetBirth from "./SetBirth"
 
 const Authors = (props) => {
 
@@ -8,7 +9,7 @@ const Authors = (props) => {
   if (allAuthResult.loading) return <div>loading...</div>
 
   const authors = allAuthResult.data.allAuthors
-  
+
   return (
     <div>
       <h2>authors</h2>
@@ -28,6 +29,7 @@ const Authors = (props) => {
           ))}
         </tbody>
       </table>
+      <SetBirth />
     </div>
   )
 }
