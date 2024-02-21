@@ -5,7 +5,6 @@ const Author = require('./models/Author')
 const User = require('./models/User')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
-const _ = require('lodash')
 mongoose.set('strictQuery', false)
 
 require('dotenv').config()
