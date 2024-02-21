@@ -173,11 +173,32 @@ const resolvers = {
                 // authors = authors.concat({name: args.author, id: uuid()})
                 console.log('new author')
                 const auth = new Author({ name: args.author })
-                auth.save()
+                try { 
+                    await auth.save() 
+                } catch (error) {
+                    throw new GraphQLError('Saving author failed', {
+                        extensions: {
+                            code: 'BAD_USER_INPUT',
+                            invalidArgs: args.author,
+                            error
+                        }
+                    })
+                }
             }
             const bookObject = {...args, author: new Author({name: args.author})}
             const book = new Book(bookObject)
-            return book.save()
+            try {
+                 await book.save()
+                } catch (error) {
+                    throw new GraphQLError('Saving book failed', {
+                        extensions: {
+                            code: 'BAD_USER_INPUT',
+                            invalidArgs: args.title,
+                            error
+                        }
+                    })
+                }
+            return book
             // return book
         },
         editAuthor: async (root, args) => {
