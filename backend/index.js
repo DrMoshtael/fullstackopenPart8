@@ -150,13 +150,13 @@ const resolvers = {
     Query: {
         bookCount: () => Book.collection.countDocuments(),
         authorCount: () => Author.collection.countDocuments(),
-        allBooks: (root, args) => {
+        allBooks: async (root, args) => {
             if (!args.author && !args.genre) return Book.find({})
             else if (!args.genre) return books.filter(b => b.author === args.author)
             else if (!args.author) return books.filter(b => b.genres.includes(args.genre))
             else return books.filter(b => b.author === args.author && b.genres.includes(args.genre))
         },
-        allAuthors: () => Author.find({})
+        allAuthors: async () => Author.find({})
         // .map((a => {
         //     return {
         //         ...a,
@@ -180,12 +180,16 @@ const resolvers = {
             return book.save()
             // return book
         },
-        editAuthor: (root, args) => {
-            const auth = authors.find(a => a.name === args.name)
-            if (!auth) return null
-            const updAuth = {...auth, born: args.setBornTo}
-            authors[authors.indexOf(auth)] = updAuth
-            return updAuth
+        editAuthor: async (root, args) => {
+            // const auth = authors.find(a => a.name === args.name)
+            // if (!auth) return null
+            // const updAuth = {...auth, born: args.setBornTo}
+            // authors[authors.indexOf(auth)] = updAuth
+            // return updAuth
+            return Author.findOneAndUpdate(
+                { name: args.name }, 
+                { ...args, born: args.setBornTo }, 
+                { new: true, runValidators: true })
         }
     }
 }
