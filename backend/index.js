@@ -154,6 +154,10 @@ const typeDefs = `
         published: Int!
         genres: [String!]!
     ): Book!
+    addBook2(
+        title: String!
+        published: Int
+    ): Book
     editAuthor(
         name: String!
         setBornTo: Int!
@@ -161,11 +165,15 @@ const typeDefs = `
     createUser(
         username: String!
         favoriteGenre: String!
-      ): User
-      login(
+    ): User
+    login(
         username: String!
         password: String!
-      ): Token
+    ): Token
+    addAuthor(
+        name: String!
+        born: Int
+    ): Author
   }
 `
 
@@ -174,6 +182,7 @@ const resolvers = {
         bookCount: () => Book.collection.countDocuments(),
         authorCount: () => Author.collection.countDocuments(),
         allBooks: async (root, args) => {
+            console.log('all books')
             const books = await Book.find({}).populate('author')
             if (!args.author && !args.genre) return books
             else if (!args.genre) return books.filter(b => b.author.name === args.author)
@@ -183,18 +192,35 @@ const resolvers = {
         allAuthors: async () => {
             const authors = await Author.find({})
             const books = await Book.find({}).populate('author')
-            return authors.map(a => {return {
-                name: a.name,
-                born: a.born,
-                bookCount: books.reduce((acc, cur) => cur.author.name === a.name ? acc + 1 : acc, 0)
-            }
+            return authors.map(a => {
+                return {
+                    name: a.name,
+                    born: a.born,
+                    bookCount: books.reduce((acc, cur) => cur.author.name === a.name ? acc + 1 : acc, 0)
+                }
             })
         },
         me: (root, args, context) => context.currentUser
     },
     Mutation: {
-        addBook: async (root, args, context) => {
+        addBook2: async (root, args, context) => {
+            console.log('adding book2')
             if (!context.currentUser) {
+                console.log('user not logged in')
+                throw new GraphQLError('User not logged in', {
+                    extensions: {
+                        code: 'BAD_USER_INPUT'
+                    }
+                })
+            }
+            console.log('logged')
+            const book = new Book({title: args.title, published: args.published})
+            return book.save()
+        },
+        addBook: async (root, args, context) => {
+            console.log('addBook called')
+            if (!context.currentUser) {
+                console.log('user not logged in')
                 throw new GraphQLError('User not logged in', {
                     extensions: {
                         code: 'BAD_USER_INPUT'
@@ -224,7 +250,7 @@ const resolvers = {
             }
             const book = new Book(bookObject)
             try {
-                await book.save()
+                return book.save()
             } catch (error) {
                 throw new GraphQLError('Saving book failed', {
                     extensions: {
@@ -234,10 +260,12 @@ const resolvers = {
                     }
                 })
             }
-            return book
+            // return book
         },
         editAuthor: async (root, args, context) => {
+            console.log('editing Author')
             if (!context.currentUser) {
+                console.log('not logged in')
                 throw new GraphQLError('User not logged in', {
                     extensions: {
                         code: 'BAD_USER_INPUT'
@@ -247,12 +275,12 @@ const resolvers = {
             return Author.findOneAndUpdate(
                 { name: args.name },
                 { ...args, born: args.setBornTo },
-                { new: true, runValidators: true })
+                { new: true, runValidators: false })
         },
         createUser: async (root, args) => {
-            const user = new User( { username: args.username, favoriteGenre: args.favoriteGenre })
+            const user = new User({ username: args.username, favoriteGenre: args.favoriteGenre })
             return user.save()
-                .catch (error => {
+                .catch(error => {
                     throw new GraphQLError('Creating user failed', {
                         extensions: {
                             code: 'BAD_USER_INPUT',
@@ -260,10 +288,10 @@ const resolvers = {
                             error
                         }
                     })
-                }) 
+                })
         },
         login: async (root, args) => {
-            const user = await User.findOne( { username: args.username })
+            const user = await User.findOne({ username: args.username })
             if (!user || args.password !== 'secret') {
                 throw new GraphQLError('wrong credentials', {
                     extensions: { code: 'BAD_USER_INPUT' }
@@ -271,6 +299,19 @@ const resolvers = {
             }
             const token = jwt.sign({ user: user.username, id: user._id }, process.env.SECRET_KEY)
             return { value: token }
+        },
+        addAuthor: async (root, args, context) => {
+            console.log('adding author')
+            if (!context.currentUser) {
+                console.log('user not logged in')
+                throw new GraphQLError('User not logged in', {
+                    extensions: {
+                        code: 'BAD_USER_INPUT'
+                    }
+                })
+            }
+            const auth = new Author({ name: args.name, born: args. born })
+            return auth.save()
         }
     }
 }

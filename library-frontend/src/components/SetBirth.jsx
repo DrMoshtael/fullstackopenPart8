@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/client";
 import { ALL_AUTHORS, EDIT_AUTHOR } from "../queries";
 
 const SetBirth = ({ authors }) => {
-  const [name, setName] = useState("");
+  const [name, setName] = useState('Sandi Metz');
   const [born, setBorn] = useState("");
 
   const [editYear] = useMutation(EDIT_AUTHOR, {
@@ -12,14 +12,12 @@ const SetBirth = ({ authors }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(name, born)
     editYear({
       variables: {
         name: name,
         year: Number(born),
       },
     });
-    setName("");
     setBorn("");
   };
 
