@@ -7,7 +7,6 @@ import NewAuthor from './components/NewAuthor'
 import Recommend from './components/Recommend'
 import { useState, useEffect } from 'react'
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Link,
