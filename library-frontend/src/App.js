@@ -4,6 +4,7 @@ import NewBook from './components/NewBook'
 import Notify from './components/Notify'
 import LoginForm from './components/LoginForm'
 import NewAuthor from './components/NewAuthor'
+import Recommend from './components/Recommend'
 import { useState, useEffect } from 'react'
 import {
   BrowserRouter as Router,
@@ -36,7 +37,7 @@ const App = () => {
     navigate('/login')
     setToken(null)
     localStorage.removeItem('library-user-token')
-    client.resetStore()
+    client.clearStore()
   }
 
   return (
@@ -48,7 +49,9 @@ const App = () => {
           <Link to='/add_author'><button>add author</button></Link>
           {token && <Link to='/add'><button>add book</button></Link>}
           {!token && <Link to='/login'><button>login</button></Link>}
+          {token && <Link to='/recommend'><button>recommend</button></Link>}
           {token && <button onClick={logout}>logout</button>}
+
         </div>
         <Routes>
           <Route path='/' element={<Authors />} />
@@ -56,6 +59,7 @@ const App = () => {
           <Route path='/add' element={<NewBook notify={notify}/>} />
           <Route path='/login' element={<LoginForm setToken={setToken} />} />
           <Route path='/add_author' element={<NewAuthor />} />
+          <Route path='/recommend' element={<Recommend />} />
         </Routes>
     </div>
   )
