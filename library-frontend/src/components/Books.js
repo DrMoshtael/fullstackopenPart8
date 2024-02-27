@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { ALL_BOOKS, SOME_BOOKS } from "../queries"
 import { useQuery } from "@apollo/client"
 
