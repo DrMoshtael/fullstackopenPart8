@@ -41,10 +41,13 @@ const App = () => {
   }, [genreFilter])
 
   useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
-      console.log(data)
-      if (data)
-        notify(`The book '${data.data.bookAdded.title}' has been added to the database`)
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded
+      notify(`The book '${addedBook.title}' has been added to the database`)
+      client.refetchQueries({ include: [
+        { query: ALL_BOOKS },
+        { query: SOME_BOOKS, variables: { genre: genreFilter }}
+      ] })
     }
   })
 
