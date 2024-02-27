@@ -12,8 +12,8 @@ import {
   Link,
   useNavigate
 } from 'react-router-dom'
-import { useApolloClient } from '@apollo/client'
-import { ALL_BOOKS, SOME_BOOKS } from './queries'
+import { useApolloClient, useSubscription } from '@apollo/client'
+import { ALL_BOOKS, BOOK_ADDED, SOME_BOOKS } from './queries'
 
 const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
@@ -39,6 +39,14 @@ const App = () => {
       { query: SOME_BOOKS, variables: { genre: genreFilter }}
     ] })
   }, [genreFilter])
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      console.log(data)
+      if (data)
+        notify(`The book '${data.data.bookAdded.title}' has been added to the database`)
+    }
+  })
 
   const notify = (message) => {
     setErrorMessage(message)

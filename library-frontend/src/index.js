@@ -1,11 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink, from } from '@apollo/client'
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink, from, split } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { onError } from '@apollo/client/link/error'
-
+import { getMainDefinition } from '@apollo/client/utilities'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors)
@@ -29,9 +31,25 @@ const httpLink = createHttpLink({
     uri: 'http://localhost:4001'
 })
 
+const wsLink = new GraphQLWsLink(
+    createClient({ url: 'ws://localhost:4001' })
+)
+
+const splitLink = split(
+    ({ query }) => {
+        const definition = getMainDefinition(query)
+        return (
+            definition.kind === 'OperationDefinition' &&
+            definition.operation === 'subscription'
+        )
+    },
+    wsLink,
+    from([errorLink, authLink, httpLink])
+)
+
 const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: from([errorLink, authLink, httpLink])
+    link: splitLink
 })
 
 ReactDOM.createRoot(document.getElementById('root')).render(
