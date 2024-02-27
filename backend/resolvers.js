@@ -1,7 +1,7 @@
 const Book = require('./models/Book')
 const Author = require('./models/Author')
 const User = require('./models/User')
-
+const jwt = require('jsonwebtoken')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 
@@ -18,6 +18,7 @@ const resolvers = {
             else return books.filter(b => b.author.name === args.author && b.genres.includes(args.genre))
         },
         allAuthors: async () => {
+            console.log('allAuthors resolver')
             const authors = await Author.find({})
             const books = await Book.find({}).populate('author')
             return authors.map(a => {
