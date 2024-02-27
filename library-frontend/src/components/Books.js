@@ -2,12 +2,15 @@ import { useState } from "react"
 import { ALL_BOOKS, SOME_BOOKS } from "../queries"
 import { useQuery } from "@apollo/client"
 
-const Books = () => {
-  const [genre, setGenre] = useState('')
+const Books = ({genre, setGenre}) => {
+
   const allBooksResult = useQuery(ALL_BOOKS)
   const someBooksResult = useQuery(SOME_BOOKS, { variables: { genre: genre }})
 
-  if (allBooksResult.loading || someBooksResult.loading) return <div>loading...</div>
+  if (allBooksResult.loading || someBooksResult.loading) {
+    console.log('loading',someBooksResult)
+    return <div>loading...</div>}
+  console.log('unloaded',someBooksResult)
 
   const books = allBooksResult.data.allBooks
   const someBooks = someBooksResult.data.allBooks

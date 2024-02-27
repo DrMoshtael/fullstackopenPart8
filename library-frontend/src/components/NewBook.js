@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../queries'
+import { ADD_BOOK, ALL_AUTHORS, ALL_BOOKS, SOME_BOOKS } from '../queries'
 import { useMutation } from '@apollo/client'
 import { useNavigate } from 'react-router-dom'
 
-const NewBook = ({notify}) => {
+const NewBook = ({notify, genreFilter}) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -13,11 +13,25 @@ const NewBook = ({notify}) => {
 
   const [ createBook ] = useMutation(ADD_BOOK
     , {
-    refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+    // refetchQueries: [ { query: ALL_BOOKS }, { query: ALL_AUTHORS }, { query: SOME_BOOKS }],
+    refetchQueries: [
+      { query: ALL_BOOKS },
+      { query: ALL_AUTHORS },
+      { query: SOME_BOOKS },
+      { query: SOME_BOOKS, variables: { genre: genreFilter }}
+    ],
     onError: (error) => {
       const messages = error.graphQLErrors.map(e => e.message).join('\n')
       notify(messages)
-    }
+    },
+    // update(cache, response) {
+    //   cache.updateQuery({ query: SOME_BOOKS }, ({ cachedSomeBooks }) => {
+    //     console.log('cahcedboks',cachedSomeBooks)
+    //     return {
+    //       cachedSomeBooks: cachedSomeBooks.concat(response.data.allBooks),
+    //     }
+    //   })
+    // }
   })
 
   const submit = (event) => {
